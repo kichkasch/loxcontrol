@@ -16,7 +16,7 @@ var loxCommands = [
     subtitle: "> Modus auswählen"
   },
   {
-    title: "Jalousien auff",
+    title: "Jalousien auf",
     subtitle: "Alle Jalousien öffnen"
   },
   {
