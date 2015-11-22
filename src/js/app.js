@@ -1,62 +1,72 @@
-/**
- * Welcome to Pebble.js!
- *
- * This is where you write your app.
- */
-
+// Import the UI elements
 var UI = require('ui');
-var Vector2 = require('vector2');
+var ajax = require('ajax');
+var Settings = require('settings'); // https://developer.getpebble.com/docs/pebblejs/#settings
 
-var main = new UI.Card({
-  title: 'Pebble.js',
-  icon: 'images/menu_icon.png',
-  subtitle: 'Hello World!',
-  body: 'Press any button.',
-  subtitleColor: 'indigo', // Named colors
-  bodyColor: '#9a0036' // Hex colors
+// Settings.option('authorization', "Basic ********");  // put your base64 credentials here once (https://www.base64encode.org/)
+
+// Make a list of menu items
+var loxCommands = [
+  {
+    title: "Licht Arbeitszimmer", 
+    subtitle: "Toggle"
+  },
+  {
+    title: "Betriebsmodus",
+    subtitle: "> Modus auswählen"
+  },
+  {
+    title: "Jalousien auff",
+    subtitle: "Alle Jalousien öffnen"
+  },
+  {
+    title: "Jalousien zu",
+    subtitle: "Alle Jalousien schließen"
+  }
+];
+
+// Create the Menu, supplying the list of fruits
+var loxMenu = new UI.Menu({
+  sections: [{
+    title: 'LoxControl',
+    items: loxCommands
+  }]
 });
 
-main.show();
 
-main.on('click', 'up', function(e) {
-  var menu = new UI.Menu({
-    sections: [{
-      items: [{
-        title: 'Pebble.js',
-        icon: 'images/menu_icon.png',
-        subtitle: 'Can do Menus'
-      }, {
-        title: 'Second Item',
-        subtitle: 'Subtitle Text'
-      }]
-    }]
-  });
-  menu.on('select', function(e) {
-    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-    console.log('The item is titled "' + e.item.title + '"');
-  });
-  menu.show();
+
+// Display to the user
+loxMenu.show();
+
+
+// Add a click listener for select button click
+loxMenu.on('select', function(event) {
+  console.log('Menu selected: ' + event.itemIndex);
+  if (event.itemIndex == 0)
+    {
+      ajax({url: 'http://192.168.200.19/dev/sps/io/Arbeitszimmer/Impuls', type: 'json', 
+            headers:{Authorization: Settings.option('authorization') } 
+           },
+        function(json) {
+          // Data is supplied here
+      
+        },
+        function(error) {
+          console.log('Ajax failed: ' + error);
+        }
+      );
+      
+    } else {
+  
+      // Show a card with clicked item details
+      var detailCard = new UI.Card({
+        title: loxCommands[event.itemIndex].title,
+        body: loxCommands[event.itemIndex].subtitle
+      });
+    
+      // Show the new Card
+      detailCard.show();
+      
+    }
 });
 
-main.on('click', 'select', function(e) {
-  var wind = new UI.Window({
-    fullscreen: true,
-  });
-  var textfield = new UI.Text({
-    position: new Vector2(0, 65),
-    size: new Vector2(144, 30),
-    font: 'gothic-24-bold',
-    text: 'Text Anywhere!',
-    textAlign: 'center'
-  });
-  wind.add(textfield);
-  wind.show();
-});
-
-main.on('click', 'down', function(e) {
-  var card = new UI.Card();
-  card.title('A Card');
-  card.subtitle('Is a Window');
-  card.body('The simplest window type in Pebble.js.');
-  card.show();
-});
